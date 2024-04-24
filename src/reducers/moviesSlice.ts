@@ -1,6 +1,7 @@
 import { ActionWithPayload, createReducer } from "../redux/utils";
 import { AppThunk } from "../store";
 import { MoviesFilters, client } from "../api/tmdb";
+import { genres } from "../features/Movies/genres";
 
 export interface Movie {
     id: number,
@@ -10,11 +11,17 @@ export interface Movie {
     image?: string,
 }
 
+export interface Genre {
+  id: number;
+  name: string;
+}
+
 interface MovieState {
     top: Movie[];
     loading: boolean;
     page: number;
     hasMorePages: boolean;
+    genres: Genre[];
 }
 
 const initialState: MovieState = {
@@ -22,6 +29,7 @@ const initialState: MovieState = {
     loading: false,
     page: 0,
     hasMorePages: true,
+    genres,
 }
 
  const moviesLoaded = (movies: Movie[], page: number, hasMorePages: boolean) => ({

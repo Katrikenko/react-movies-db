@@ -2,7 +2,10 @@ import { FilterAltOutlined } from "@mui/icons-material";
 import {
   Autocomplete,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   FormLabel,
   Paper,
   TextField,
@@ -11,22 +14,26 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { KeywordItem, client } from "../../api/tmdb";
 import { useState, useMemo } from "react";
+import { useAppSelector } from "../../hooks";
 
 export interface Filters {
   keywords: KeywordItem[];
+  genres: number[];
 }
 
-interface MpviesFilterProps {
+interface MoviesFilterProps {
   onApply(filters: Filters): void;
 }
 
-export function MoviesFilter({ onApply }: MpviesFilterProps) {
+export function MoviesFilter({ onApply }: MoviesFilterProps) {
   const [keywordsLoading, setKeywordsLoading] = useState(false);
   const [keywordsOptions, setKeywordsOptions] = useState<KeywordItem[]>([]);
+  const genres = useAppSelector((state) => state.movies.genres);
 
   const { handleSubmit, control } = useForm<Filters>({
     defaultValues: {
       keywords: [],
+      genres: [],
     },
   });
 
@@ -50,7 +57,6 @@ export function MoviesFilter({ onApply }: MpviesFilterProps) {
     <Paper sx={{ m: 2, p: 0.5 }}>
       <form onSubmit={handleSubmit(onApply)}>
         <FormControl component="fieldset" variant="standard" sx={{ m: 2, display: "block" }}>
-          <FormLabel component="legend">Genres</FormLabel>
           <Controller
             name="keywords"
             control={control}
@@ -70,6 +76,39 @@ export function MoviesFilter({ onApply }: MpviesFilterProps) {
               />
             )}
           />
+        </FormControl>
+        <FormControl component="fieldset" variant="standard" sx={{ m: 2, display: "block" }}>
+          <FormLabel component="legend">Genres</FormLabel>
+          <FormGroup sx={{ maxHeight: 500 }}>
+            <Controller
+              name="genres"
+              control={control}
+              render={({ field }) => (
+                <>
+                  {genres.map((genre) => (
+                    <FormControlLabel
+                      key={genre.id}
+                      control={
+                        <Checkbox
+                          value={genre.id}
+                          checked={field.value.includes(genre.id)}
+                          onChange={(event, checked) => {
+                            const valueNumber = Number(event.target.value);
+                            if (checked) {
+                              field.onChange([...field.value, valueNumber]);
+                            } else {
+                              field.onChange(field.value.filter((value) => value !== valueNumber));
+                            }
+                          }}
+                        />
+                      }
+                      label={genre.name}
+                    />
+                  ))}
+                </>
+              )}
+            />
+          </FormGroup>
         </FormControl>
         <Button type="submit" variant="contained" startIcon={<FilterAltOutlined />} sx={{ m: 2 }}>
           Apply filter

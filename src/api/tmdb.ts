@@ -1,3 +1,4 @@
+import { genres } from './../features/Movies/genres';
 import configuration from "../configuration";
 
 const apiBasePath = `${configuration.apiUrl}/3`
@@ -53,7 +54,8 @@ export interface KeywordItem {
 }
 
 export interface MoviesFilters {
-  keywords?: number[]
+  keywords?: number[];
+  genres?: number[];
 }
 
 export const client = {
@@ -80,8 +82,11 @@ export const client = {
         params.append("with_keywords", filters.keywords.join("|"))
       }
 
-      const query = params.toString()
+      if(filters.genres?.length) {
+        params.append("with_genres", filters.genres.join(","))
+      }
 
+      const query = params.toString()
       const res = await get<PageResponse<MovieDetails>>(
         `/discover/movie?${query}}`,
       );
