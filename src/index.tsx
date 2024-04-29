@@ -10,7 +10,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { About } from "./features/About/About";
-import Movies from "./features/Movies/Movies";
+// import Movies from "./features/Movies/Movies";
 import { Provider } from "react-redux";
 import store from "./store";
 import Home from "./features/Home/Home";
@@ -41,7 +41,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/movies",
-        element: <Movies />,
+        lazy: () => import("./features/Movies/Movies"),
       },
     ],
   },
@@ -58,4 +58,3 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-

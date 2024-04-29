@@ -5,13 +5,15 @@ import MovieCard from "./MovieCard";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Movie } from "../../reducers/moviesSlice";
 
-import { useEffect, useContext, useState, useCallback } from "react";
+import { useEffect, useContext, useState, useCallback, lazy, Suspense } from "react";
 import { Container, LinearProgress, Grid, Typography } from "@mui/material";
 import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
-import { Filters, MoviesFilter } from "./MoviesFilter";
+import { Filters } from "./MoviesFilter";
 
-export function Movies() {
+const MoviesFilter = lazy(() => import("./MoviesFilter"));
+
+export function Component() {
   const [filters, setFilters] = useState<Filters>();
   const dispatch = useAppDispatch();
   const movies: Movie[] = useAppSelector((state) => state.movies.top);
@@ -50,12 +52,14 @@ export function Movies() {
   return (
     <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
       <Grid item xs="auto">
-        <MoviesFilter
-          onApply={(f) => {
-            dispatch(resetMovies());
-            setFilters(f);
-          }}
-        />
+        <Suspense fallback={<span>Loading filters...</span>}>
+          <MoviesFilter
+            onApply={(f) => {
+              dispatch(resetMovies());
+              setFilters(f);
+            }}
+          />
+        </Suspense>
       </Grid>
       <Grid item xs={12}>
         <Container sx={{ py: 8 }} maxWidth="lg">
@@ -93,4 +97,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const connector = connect(mapStateToProps);
 
-export default connector(Movies);
+// export default connector(Movies);
+
+Component.displayName = "Movies";
