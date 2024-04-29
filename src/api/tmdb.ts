@@ -97,6 +97,7 @@ export const client = {
         totalPages: res.total_pages,
       };
     },
+    
     async getKeywords(query: string) {
       const response = await get<PageResponse<KeywordItem>>(`/search/keyword?query=${query}`)
 

@@ -1,12 +1,12 @@
 import { fetchNextPage, resetMovies } from "../../reducers/moviesSlice";
 import { connect } from "react-redux";
 import { RootState } from "../../store";
-import { MovieCard } from "./MovieCard";
+import MovieCard from "./MovieCard";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { Movie } from "../../reducers/moviesSlice";
 
-import { useEffect, useContext, useState } from "react";
-import { Container, LinearProgress, Typography, Grid } from "@mui/material";
+import { useEffect, useContext, useState, useCallback } from "react";
+import { Container, LinearProgress, Grid, Typography } from "@mui/material";
 import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { Filters, MoviesFilter } from "./MoviesFilter";
@@ -32,12 +32,20 @@ export function Movies() {
       const moviesFilters = filters
         ? {
             keywords: filters.keywords.map((k) => k.id),
+            genres: filters.genres,
           }
         : undefined;
 
       dispatch(fetchNextPage(moviesFilters));
     }
   }, [dispatch, entry?.isIntersecting, filters, hasMorePages]);
+
+  const handlerAddFavorite = useCallback(
+    (id: number) => {
+      alert(`Not implemented! Action: ${user.name} is adding movie ${id} to favorites.`);
+    },
+    [user.name]
+  );
 
   return (
     <Grid container spacing={2} sx={{ flexWrap: "nowrap" }}>
@@ -51,9 +59,12 @@ export function Movies() {
       </Grid>
       <Grid item xs={12}>
         <Container sx={{ py: 8 }} maxWidth="lg">
+          {!loading && !movies.length && (
+            <Typography variant="h6">No movies were found that match your query</Typography>
+          )}
           <Grid container spacing={4}>
-            {movies.map((m) => (
-              <Grid item key={m.id} xs={12} sm={6} md={4}>
+            {movies.map((m, i) => (
+              <Grid item key={`${m.id}-${i}`} xs={12} sm={6} md={4}>
                 <MovieCard
                   id={m.id}
                   title={m.title}
@@ -61,6 +72,7 @@ export function Movies() {
                   popularity={m.popularity}
                   image={m.image}
                   enableUserActions={loggedIn}
+                  onAddFavorite={handlerAddFavorite}
                 />
               </Grid>
             ))}
