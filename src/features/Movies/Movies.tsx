@@ -1,46 +1,47 @@
-import { fetchNextPage, resetMovies } from "../../reducers/moviesSlice";
-import { connect } from "react-redux";
-import { RootState } from "../../store";
 import MovieCard from "./MovieCard";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import { Movie } from "../../reducers/moviesSlice";
 
-import { useEffect, useContext, useState, useCallback, lazy, Suspense } from "react";
+import { useContext, useState, useCallback, lazy, Suspense } from "react";
 import { Container, LinearProgress, Grid, Typography } from "@mui/material";
 import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
-import { Filters } from "./MoviesFilter";
+
+import {
+  useGetConfigurationQuery,
+  useGetMoviesQuery,
+  MoviesQuery,
+  MoviesFilters,
+} from "../../services/tmdb";
+
+const initialQuery: MoviesQuery = {
+  page: 1,
+  filters: {},
+};
 
 const MoviesFilter = lazy(() => import("./MoviesFilter"));
 
 export function Component() {
-  const [filters, setFilters] = useState<Filters>();
-  const dispatch = useAppDispatch();
-  const movies: Movie[] = useAppSelector((state) => state.movies.top);
-  const loading = useAppSelector((state) => state.movies.loading);
-  const hasMorePages = useAppSelector((state) => state.movies.hasMorePages);
+  const [query, setQuery] = useState<MoviesQuery>(initialQuery);
+
+  const { data: configuration } = useGetConfigurationQuery();
+  const { data, isFetching } = useGetMoviesQuery(query);
+
+  const movies = data?.results ?? [];
+  const hasMorePages = data?.hasMorePages;
+
+  function formatImageUrl(path?: string) {
+    return path && configuration ? `${configuration?.images.base_url}w780${path}` : undefined;
+  }
 
   const { user } = useContext(AuthContext);
   const loggedIn = user !== anonymousUser;
 
-  const [targetRef, entry] = useIntersectionObserver();
-
-  useEffect(() => {
-    dispatch(resetMovies());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (entry?.isIntersecting && hasMorePages) {
-      const moviesFilters = filters
-        ? {
-            keywords: filters.keywords.map((k) => k.id),
-            genres: filters.genres,
-          }
-        : undefined;
-
-      dispatch(fetchNextPage(moviesFilters));
+  const onIntersect = useCallback(() => {
+    if (hasMorePages) {
+      setQuery((q) => ({ ...q, page: q.page + 1 }));
     }
-  }, [dispatch, entry?.isIntersecting, filters, hasMorePages]);
+  }, [hasMorePages]);
+
+  const [targetRef] = useIntersectionObserver({ onIntersect });
 
   const handlerAddFavorite = useCallback(
     (id: number) => {
@@ -54,16 +55,22 @@ export function Component() {
       <Grid item xs="auto">
         <Suspense fallback={<span>Loading filters...</span>}>
           <MoviesFilter
-            onApply={(f) => {
-              dispatch(resetMovies());
-              setFilters(f);
+            onApply={(filters) => {
+              const moviesFilters: MoviesFilters = {
+                keywords: filters.keywords.map((k) => k.id),
+                genres: filters.genres,
+              };
+              setQuery({
+                page: 1,
+                filters: moviesFilters,
+              });
             }}
           />
         </Suspense>
       </Grid>
       <Grid item xs={12}>
         <Container sx={{ py: 8 }} maxWidth="lg">
-          {!loading && !movies.length && (
+          {!isFetching && !movies.length && (
             <Typography variant="h6">No movies were found that match your query</Typography>
           )}
           <Grid container spacing={4}>
@@ -74,7 +81,7 @@ export function Component() {
                   title={m.title}
                   overview={m.overview}
                   popularity={m.popularity}
-                  image={m.image}
+                  image={formatImageUrl(m.backdrop_path)}
                   enableUserActions={loggedIn}
                   onAddFavorite={handlerAddFavorite}
                 />
@@ -82,21 +89,12 @@ export function Component() {
             ))}
           </Grid>
           <div ref={targetRef}>
-            {loading && <LinearProgress color="secondary" sx={{ mt: 3 }} />}
+            {isFetching && <LinearProgress color="secondary" sx={{ mt: 3 }} />}
           </div>
         </Container>
       </Grid>
     </Grid>
   );
 }
-
-const mapStateToProps = (state: RootState) => ({
-  movies: state.movies.top,
-  loading: state.movies.loading,
-});
-
-const connector = connect(mapStateToProps);
-
-// export default connector(Movies);
 
 Component.displayName = "Movies";
