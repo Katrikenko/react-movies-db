@@ -15,6 +15,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 import Home from "./features/Home/Home";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { Extra } from "./features/Extra/Extra";
 
 function AppEntrypoint() {
   return (
@@ -36,12 +37,16 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: "/movies",
+        lazy: () => import("./features/Movies/Movies"),
+      },
+      {
         path: "/about",
         element: <About />,
       },
       {
-        path: "/movies",
-        lazy: () => import("./features/Movies/Movies"),
+        path: "/extra",
+        element: <Extra />,
       },
     ],
   },
