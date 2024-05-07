@@ -3,6 +3,7 @@ import { AppBar, Box, Button, Link, Toolbar, Typography } from "@mui/material";
 import { useContext } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { AuthContext, anonymousUser } from "./AuthContext";
+import { useAuth0 } from "@auth0/auth0-react";
 
 interface AppHeaderProps {
   onLogin(): void;
@@ -26,25 +27,40 @@ export function AppHeader({ onLogin, onLogout }: AppHeaderProps) {
             <HeaderLink to="/extra">Extra</HeaderLink>
           </nav>
         </Box>
-        <AuthSection onLogin={onLogin} onLogout={onLogout} />
+        <AuthSection />
       </Toolbar>
     </AppBar>
   );
 }
 
-interface AuthSectionProps {
-  onLogin(): void;
-  onLogout(): void;
-}
+// interface AuthSectionProps {
+//   onLogin(): void;
+//   onLogout(): void;
+// }
 
-function AuthSection({ onLogin, onLogout }: AuthSectionProps) {
-  const auth = useContext(AuthContext);
-  const loggedIn = auth.user !== anonymousUser;
+function AuthSection() {
+  const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0();
 
-  if (loggedIn) {
+  const onLogin = async () => {
+    await loginWithRedirect({
+      appState: {
+        returnTo: "/",
+      },
+    });
+  };
+
+  const onLogout = () => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  };
+
+  if (isAuthenticated) {
     return (
       <>
-        <Typography>Hello, {auth.user.name}!</Typography>
+        <Typography>Hello, {user?.name}!</Typography>
         <Button color="inherit" variant="outlined" sx={{ ml: 1.5 }} onClick={onLogout}>
           Log out
         </Button>

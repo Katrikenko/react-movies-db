@@ -16,7 +16,8 @@ import store from "./store";
 import Home from "./features/Home/Home";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { Extra } from "./features/Extra/Extra";
-import { Auth0Provider } from "@auth0/auth0-react";
+import { StatefulAuthProvider } from "./auth/StatefulAuthProvider";
+import { AuthCallback } from "./auth/AuthCallback";
 
 function AppEntrypoint() {
   return (
@@ -44,12 +45,16 @@ const router = createBrowserRouter([
         lazy: () => import("./features/Movies/Movies"),
       },
       {
+        path: "/extra",
+        element: <Extra />,
+      },
+      {
         path: "/about",
         element: <About />,
       },
       {
-        path: "/extra",
-        element: <Extra />,
+        path: "/callback",
+        element: <AuthCallback />,
       },
     ],
   },
