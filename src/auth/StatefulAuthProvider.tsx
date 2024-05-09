@@ -11,6 +11,7 @@ const authConfig = {
   clientId: configuration.auth0CkientId!,
   authorizationParams: {
     redirect_uri: configuration.auth0RedirectUri,
+    audience: configuration.audience,
   },
 };
 

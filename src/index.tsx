@@ -19,6 +19,8 @@ import { Extra } from "./features/Extra/Extra";
 import { StatefulAuthProvider } from "./auth/StatefulAuthProvider";
 import { AuthCallback } from "./auth/AuthCallback";
 import { Profile } from "./features/Profile/Profile";
+import { AuthenticationGuard } from "./auth/AuthenticationGuard";
+import { Protected } from "./features/Protected/Protected";
 
 function AppEntrypoint() {
   return (
@@ -51,7 +53,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile",
-        element: <Profile />,
+        element: <AuthenticationGuard component={Profile} />,
+      },
+      {
+        path: "/protected",
+        element: <AuthenticationGuard component={Protected} />,
       },
       {
         path: "/about",

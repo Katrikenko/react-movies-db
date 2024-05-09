@@ -1,4 +1,4 @@
-import { Typography, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import { useAuth0 } from "@auth0/auth0-react";
 import { UserSettingsMenu } from "./UserSettingsMenu";
 import { useNavigate } from "react-router-dom";
