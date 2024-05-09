@@ -3,7 +3,7 @@ import styles from "./App.module.scss";
 import { Outlet } from "react-router-dom";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
-import { AppHeader } from "./AppHeader";
+import { AppHeader } from "./features/Header/AppHeader";
 import { AuthContext, AuthInfo, anonymousUser } from "./AuthContext";
 
 const defaultTheme = createTheme({

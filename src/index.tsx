@@ -18,6 +18,7 @@ import { ErrorBoundary } from "./ErrorBoundary";
 import { Extra } from "./features/Extra/Extra";
 import { StatefulAuthProvider } from "./auth/StatefulAuthProvider";
 import { AuthCallback } from "./auth/AuthCallback";
+import { Profile } from "./features/Profile/Profile";
 
 function AppEntrypoint() {
   return (
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "/extra",
         element: <Extra />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
       },
       {
         path: "/about",

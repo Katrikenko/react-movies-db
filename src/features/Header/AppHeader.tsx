@@ -1,9 +1,7 @@
 import LiveTvOutlinedIcon from "@mui/icons-material/LiveTvOutlined";
-import { AppBar, Box, Button, Link, Toolbar, Typography } from "@mui/material";
-import { useContext } from "react";
+import { AppBar, Box, Link, Toolbar, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
-import { AuthContext, anonymousUser } from "./AuthContext";
-import { useAuth0 } from "@auth0/auth0-react";
+import { AuthSection } from "./AuthSection";
 
 interface AppHeaderProps {
   onLogin(): void;
@@ -22,55 +20,14 @@ export function AppHeader({ onLogin, onLogout }: AppHeaderProps) {
         <Box sx={{ flexGrow: 1 }}>
           <nav>
             <HeaderLink to="/">Home</HeaderLink>
-            <HeaderLink to="/about">About</HeaderLink>
             <HeaderLink to="/movies">Movies</HeaderLink>
             <HeaderLink to="/extra">Extra</HeaderLink>
+            <HeaderLink to="/about">About</HeaderLink>
           </nav>
         </Box>
         <AuthSection />
       </Toolbar>
     </AppBar>
-  );
-}
-
-// interface AuthSectionProps {
-//   onLogin(): void;
-//   onLogout(): void;
-// }
-
-function AuthSection() {
-  const { loginWithRedirect, isAuthenticated, user, logout } = useAuth0();
-
-  const onLogin = async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: "/",
-      },
-    });
-  };
-
-  const onLogout = () => {
-    logout({
-      logoutParams: {
-        returnTo: window.location.origin,
-      },
-    });
-  };
-
-  if (isAuthenticated) {
-    return (
-      <>
-        <Typography>Hello, {user?.name}!</Typography>
-        <Button color="inherit" variant="outlined" sx={{ ml: 1.5 }} onClick={onLogout}>
-          Log out
-        </Button>
-      </>
-    );
-  }
-  return (
-    <Button color="inherit" variant="outlined" onClick={onLogin}>
-      Log in
-    </Button>
   );
 }
 

@@ -1,8 +1,7 @@
 import MovieCard from "./MovieCard";
 
-import { useContext, useState, useCallback, lazy, Suspense } from "react";
+import { useState, useCallback, lazy, Suspense } from "react";
 import { Container, LinearProgress, Grid, Typography } from "@mui/material";
-import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
 import {
@@ -11,6 +10,7 @@ import {
   MoviesQuery,
   MoviesFilters,
 } from "../../services/tmdb";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const initialQuery: MoviesQuery = {
   page: 1,
@@ -32,8 +32,7 @@ export function Component() {
     return path && configuration ? `${configuration?.images.base_url}w780${path}` : undefined;
   }
 
-  const { user } = useContext(AuthContext);
-  const loggedIn = user !== anonymousUser;
+  const { isAuthenticated, user } = useAuth0();
 
   const onIntersect = useCallback(() => {
     if (hasMorePages) {
@@ -45,9 +44,9 @@ export function Component() {
 
   const handlerAddFavorite = useCallback(
     (id: number) => {
-      alert(`Not implemented! Action: ${user.name} is adding movie ${id} to favorites.`);
+      alert(`Not implemented! Action: ${user?.name} is adding movie ${id} to favorites.`);
     },
-    [user.name]
+    [user?.name]
   );
 
   return (
@@ -82,7 +81,7 @@ export function Component() {
                   overview={m.overview}
                   popularity={m.popularity}
                   image={formatImageUrl(m.backdrop_path)}
-                  enableUserActions={loggedIn}
+                  enableUserActions={isAuthenticated}
                   onAddFavorite={handlerAddFavorite}
                 />
               </Grid>
